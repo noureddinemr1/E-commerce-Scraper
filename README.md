@@ -33,5 +33,6 @@ You can install the required libraries using the provided `requirements.txt`.
    python app.py
 
 ### Test it on postman : 
-   ```bash
-   http://localhost:5000/scrape
+      ```bash
+    http://localhost:5000/scrape 
+

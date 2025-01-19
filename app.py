@@ -47,5 +47,7 @@ def scrape():
     return jsonify(scraped_data), 200
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    from werkzeug.serving import run_simple
+    run_simple('0.0.0.0', 5000, app)
+
