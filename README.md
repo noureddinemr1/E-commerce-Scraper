@@ -26,10 +26,12 @@ You can install the required libraries using the provided `requirements.txt`.
    ```bash
    pip install -r requirements.txt
 
-#### Run
+### Run
 
-3. Run index.py and wait the result.
+3. Run app.py .
+   ```bash
+   python app.py
 
-## Test it on postman : 
+### Test it on postman : 
    ```bash
    http://localhost:5000/scrape
