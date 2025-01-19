@@ -29,3 +29,7 @@ You can install the required libraries using the provided `requirements.txt`.
 #### Run
 
 3. Run index.py and wait the result.
+
+## Test it on postman : 
+   ```bash
+   http://localhost:5000/scrape
