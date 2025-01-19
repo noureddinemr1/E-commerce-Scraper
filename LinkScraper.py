@@ -1,4 +1,3 @@
-import json
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -13,7 +12,7 @@ class LinkScraper:
 
     def get_links(self):
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")  # Run in headless mode
         self.driver = webdriver.Chrome(service=Service(self.chrome_driver_path), options=chrome_options)
 
         try:
@@ -36,10 +35,8 @@ class LinkScraper:
                     links.add(href)
 
             sorted_links = sorted(list(links))
-
-            with open('links.json', 'w', encoding='utf-8') as f:
-                json.dump(sorted_links, f, ensure_ascii=False, indent=4)
-
-            print("Distinct and sorted links saved to links.json")
+            print("Scraped Links:", sorted_links)  # Debug output
+            return sorted_links  # Return links directly
         finally:
             self.driver.quit()
+

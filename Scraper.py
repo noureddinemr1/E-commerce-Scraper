@@ -1,14 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
-import json
-import os
 
 class Scraper:
-    def __init__(self, links_file):
-        self.links_file = links_file
+    def __init__(self, links=None):
+        self.links = links  # Accept links directly as a list
         self.session = requests.Session()
         self.session.headers.update({'User-Agent': 'Mozilla/5.0'})
-    
+
     def scrape_page(self, url):
         response = self.session.get(url)
         products = []
@@ -46,30 +44,25 @@ class Scraper:
             print(f"Scraped page {page_num} for {item_name} in {department_name}/{category_name}.")
             page_num += 1
 
-        if all_products:
-            department_folder = os.path.join(department_name)
-            category_folder = os.path.join(department_folder, category_name)
-            os.makedirs(category_folder, exist_ok=True)
-
-            filename = os.path.join(category_folder, f"{item_name}.json")
-            with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(all_products, f, ensure_ascii=False, indent=4)
-            print(f"Data for {item_name} in {department_name}/{category_name} saved to {filename}")
-        else:
-            print(f"No products found for {item_name} in {category_name}/{department_name}.")
-
-    def parse_links(self):
-        with open(self.links_file, 'r') as file:
-            links = json.load(file)
-        return links
+        return all_products
 
     def scrape_all(self):
-        links = self.parse_links()
+        if not self.links:
+            raise ValueError("Links must be provided to scrape.")
 
-        for link in links:
+        scraped_data = {}
+        for link in self.links:
             link_parts = link.split("/")
             department_name = link_parts[3]
             category_name = link_parts[4]
             item_name = link_parts[5]
 
-            self.scrape_element(department_name, category_name, item_name, link)
+            if department_name not in scraped_data:
+                scraped_data[department_name] = {}
+
+            if category_name not in scraped_data[department_name]:
+                scraped_data[department_name][category_name] = {}
+
+            scraped_data[department_name][category_name][item_name] = self.scrape_element(department_name, category_name, item_name, link)
+        print(scraped_data)
+        return scraped_data
