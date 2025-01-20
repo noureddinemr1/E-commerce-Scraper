@@ -34,5 +34,5 @@ You can install the required libraries using the provided `requirements.txt`.
 
 ### Test it on postman : 
       ```bash
-    http://localhost:5000/scrape 
+    http://localhost:3000/scrape 
 
