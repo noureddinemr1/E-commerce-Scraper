@@ -54,7 +54,7 @@ class Scraper:
         c=0;
         for link in self.links:
             c+=1
-            if c==100:break
+            if c==20:break
             link_parts = link.split("/")
             department_name = link_parts[3]
             category_name = link_parts[4]
