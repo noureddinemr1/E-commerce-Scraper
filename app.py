@@ -4,6 +4,7 @@ import os
 import chromedriver_autoinstaller
 from LinkScraper import LinkScraper
 from Scraper import Scraper
+import tempfile
 
 app = FastAPI()
 
@@ -11,14 +12,13 @@ chromedriver_path = chromedriver_autoinstaller.install()
 os.environ["PATH"] += os.pathsep + os.path.dirname(chromedriver_path)
 
 class ScrapeRequest(BaseModel):
-    url: str
+    url: str  
 
-@app.post("/scrape")
-async def scrape(data: ScrapeRequest):
-    url = data.url
-
+@app.get("/scrape")
+async def scrape(url: str):
     try:
-        link_scraper = LinkScraper(chrome_driver_path=chromedriver_path, url=url)
+        temp_dir = tempfile.mkdtemp()
+        link_scraper = LinkScraper(chrome_driver_path=chromedriver_path, url=url, user_data_dir=temp_dir)
         links = link_scraper.get_links()
 
         if not links:
@@ -26,6 +26,7 @@ async def scrape(data: ScrapeRequest):
 
         scraper = Scraper(links)
         scraped_data = scraper.scrape_all()
+        
         return scraped_data
 
     except Exception as e:

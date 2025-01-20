@@ -5,14 +5,17 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 
 class LinkScraper:
-    def __init__(self, chrome_driver_path, url):
+    def __init__(self, chrome_driver_path, url,user_data_dir):
         self.chrome_driver_path = chrome_driver_path
         self.url = url
+        self.user_data_dir = user_data_dir
         self.driver = None
 
+
     def get_links(self):
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Run in headless mode
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument(f"user-data-dir={self.user_data_dir}")
+        chrome_options.add_argument("--headless")  
         self.driver = webdriver.Chrome(service=Service(self.chrome_driver_path), options=chrome_options)
 
         try:
