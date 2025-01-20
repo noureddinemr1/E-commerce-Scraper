@@ -35,8 +35,8 @@ class LinkScraper:
                     links.add(href)
 
             sorted_links = sorted(list(links))
-            print("Scraped Links:", sorted_links)  # Debug output
-            return sorted_links  # Return links directly
+            print("Scraped Links:", sorted_links)  
+            return sorted_links 
         finally:
             self.driver.quit()
 

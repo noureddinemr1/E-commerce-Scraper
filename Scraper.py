@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 class Scraper:
     def __init__(self, links=None):
-        self.links = links  # Accept links directly as a list
+        self.links = links  
         self.session = requests.Session()
         self.session.headers.update({'User-Agent': 'Mozilla/5.0'})
 

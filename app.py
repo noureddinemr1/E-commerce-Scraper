@@ -1,56 +1,36 @@
-from flask import Flask, jsonify, request
-import asyncio
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import os
 import chromedriver_autoinstaller
 from LinkScraper import LinkScraper
 from Scraper import Scraper
 
-app = Flask(__name__)
+app = FastAPI()
 
-# Automatically install chromedriver
-chromedriver_autoinstaller.install()  # This will install the correct chromedriver version
+chromedriver_path = chromedriver_autoinstaller.install()
+os.environ["PATH"] += os.pathsep + os.path.dirname(chromedriver_path)
 
-# Endpoint to start scraping process
-@app.route('/scrape', methods=['POST'])
-def scrape():
-    data = request.get_json()
+class ScrapeRequest(BaseModel):
+    url: str
 
-    # Check if URL is provided in the request body
-    if not data or not data.get('url'):
-        return jsonify({"error": "URL is required"}), 400
+@app.post("/scrape")
+async def scrape(data: ScrapeRequest):
+    url = data.url
 
-    url = data['url']
-    chromedriver_path = os.getenv('CHROMEDRIVER_PATH', '/chromedriver.exe')
+    try:
+        link_scraper = LinkScraper(chrome_driver_path=chromedriver_path, url=url)
+        links = link_scraper.get_links()
 
-    # Add chromedriver to the PATH
-    os.environ['PATH'] = os.environ.get('PATH', '') + os.pathsep + chromedriver_path
+        if not links:
+            raise HTTPException(status_code=404, detail="No links found")
 
-    async def run_scraper():
-        try:
-            # Initialize the LinkScraper and scrape links
-            link_scraper = LinkScraper(chrome_driver_path=chromedriver_path, url=url)
-            links = link_scraper.get_links()
+        scraper = Scraper(links)
+        scraped_data = scraper.scrape_all()
+        return scraped_data
 
-            if not links:
-                return {"error": "No links found"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-            # Initialize the Scraper and scrape all
-            scraper = Scraper(links)
-            scraped_data = scraper.scrape_all()
-            return scraped_data
-        except Exception as e:
-            return {"error": str(e)}
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    scraped_data = loop.run_until_complete(run_scraper())
-
-    # Handle errors in scraping process
-    if "error" in scraped_data:
-        return jsonify({"error": scraped_data["error"]}), 500
-
-    return jsonify(scraped_data), 200
-
-# Main function to test locally
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=3000)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=3000)
